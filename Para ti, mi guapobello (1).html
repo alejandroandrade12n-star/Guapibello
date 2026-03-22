@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cartita romántica</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      position: relative;
+      background:
+        linear-gradient(
+          90deg,
+          #ffe45c 0%,
+          #ffe45c 40%,
+          #b9e769 50%,
+          #97d9ff 60%,
+          #97d9ff 100%
+        );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .background-overlay {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .top-letters {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 26px;
+      z-index: 20;
+      pointer-events: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .letter {
+      font-size: clamp(2.4rem, 5vw, 4.2rem);
+      font-weight: 900;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      animation: softDrop 3.8s ease-in-out infinite;
+      user-select: none;
+    }
+
+    .letter.s {
+      color: #ffd400;
+      animation-delay: 0s;
+    }
+
+    .letter.a {
+      color: #4ebcff;
+      animation-delay: 0.7s;
+    }
+
+    @keyframes softDrop {
+      0%   { transform: translateY(-6px); }
+      50%  { transform: translateY(12px); }
+      100% { transform: translateY(-6px); }
+    }
+
+    .flower {
+      position: absolute;
+      top: -10vh;
+      font-size: clamp(18px, 2vw, 28px);
+      opacity: 0.95;
+      animation-name: fall;
+      animation-timing-function: linear;
+      animation-iteration-count: infinite;
+      user-select: none;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-10vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(115vh) rotate(360deg);
+        opacity: 0.95;
+      }
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 90px 20px 30px;
+      z-index: 10;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .panel {
+      width: min(92vw, 700px);
+      background: rgba(255,255,255,0.22);
+      border: 1px solid rgba(255,255,255,0.4);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 28px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.13);
+      padding: 36px 24px;
+      text-align: center;
+    }
+
+    .title-main {
+      font-size: clamp(2rem, 5vw, 3.3rem);
+      font-weight: 800;
+      color: #2f2f2f;
+      margin-bottom: 22px;
+      text-shadow: 0 2px 8px rgba(255,255,255,0.4);
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #ffd84d, #73cfff);
+      color: #24313a;
+      font-size: clamp(1rem, 2.4vw, 1.2rem);
+      font-weight: 800;
+      padding: 16px 28px;
+      border-radius: 999px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.14);
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 12px 28px rgba(0,0,0,0.16);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .card-envelope {
+      width: min(90vw, 460px);
+      min-height: 280px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.55));
+      border-radius: 30px;
+      padding: 30px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 16px 38px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.7);
+      transition: transform 0.2s ease;
+    }
+
+    .card-envelope:hover {
+      transform: scale(1.02);
+    }
+
+    .hearts {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-size: clamp(1.6rem, 4.4vw, 2.2rem);
+      font-weight: 800;
+      color: #2c2c2c;
+      margin-bottom: 10px;
+    }
+
+    .card-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.15rem);
+      color: #3d4d57;
+      font-weight: 600;
+    }
+
+    .photos-screen {
+      flex-direction: column;
+      cursor: default;
+    }
+
+    .image-wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .romantic-image {
+      max-width: 90vw;
+      max-height: 80vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: none;
+      border-radius: 24px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.18);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .romantic-image.show {
+      display: block;
+    }
+
+    .shake {
+      animation: gentleShake 0.9s ease-in-out infinite;
+    }
+
+    @keyframes gentleShake {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      20%  { transform: translate(-1px, 1px) rotate(-0.6deg); }
+      40%  { transform: translate(1px, -1px) rotate(0.6deg); }
+      60%  { transform: translate(-1px, 0px) rotate(-0.4deg); }
+      80%  { transform: translate(1px, 1px) rotate(0.4deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    .final-panel {
+      width: min(94vw, 900px);
+      max-height: 82vh;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.3);
+      border: 1px solid rgba(255,255,255,0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 28px;
+      box-shadow: 0 14px 34px rgba(0,0,0,0.15);
+      padding: 30px 24px;
+    }
+
+    .final-text {
+      white-space: pre-line;
+      text-align: center;
+      font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+      line-height: 1.8;
+      font-weight: 700;
+      color: #24313a;
+    }
+
+    @media (max-width: 600px) {
+      .panel {
+        padding: 28px 18px;
+      }
+
+      .final-panel {
+        padding: 24px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="background-overlay" id="flowersContainer"></div>
+
+  <div class="top-letters">
+    <div class="letter s">S</div>
+    <div class="letter a">A</div>
+  </div>
+
+  <!-- Pantalla 1 -->
+  <section class="screen active" id="screen1">
+    <div class="panel">
+      <h1 class="title-main">Olioli mi guapibello</h1>
+      <button class="btn" id="toScreen2">Da clic aquí, guapeton</button>
+    </div>
+  </section>
+
+  <!-- Pantalla 2 -->
+  <section class="screen" id="screen2">
+    <div class="card-envelope" id="openLetter">
+      <div class="hearts">💛 🩵</div>
+      <div class="card-title">Una cartita para ti</div>
+      <div class="card-subtitle">Abre esta linda cartita</div>
+    </div>
+  </section>
+
+  <!-- Pantalla 3 -->
+  <section class="screen photos-screen" id="screen3">
+    <div class="image-wrap" id="photoStage">
+      <img
+        id="img1"
+        class="romantic-image"
+        src="https://raw.githubusercontent.com/alejandroandrade12n-star/imagenes/main/Captura%20de%20pantalla%202026-03-21%20181715.png"
+        alt=""
+      />
+      <img
+        id="img2"
+        class="romantic-image"
+        src="https://raw.githubusercontent.com/alejandroandrade12n-star/imagenes/main/Captura%20de%20pantalla%202026-03-21%20182135.png"
+        alt=""
+      />
+    </div>
+  </section>
+
+  <!-- Pantalla final -->
+  <section class="screen" id="screen4">
+    <div class="final-panel">
+      <div class="final-text">Para el más guapo del mundo mundial, para ti, mi lindo Sebiti
+Me hace el hombre más feliz tenerte a mi lado, eres el mejor ser humano de todo el mundo, y estoy tan feliz de que estés conmigo. Te mereces el mundo entero, y estas florecitas virtuales son una pequeña parte de todo lo que te mereces y algún día te daré. Espero que te gusten mucho y te puedan sacar una linda sonrisa, esa que tanto me encanta (de verdad, soy fan de tu sonrisa, nadie la ama más que yo). Te amo muchito, morenito beio 💛🩵</div>
+    </div>
+  </section>
+
+  <script>
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+    const screen3 = document.getElementById("screen3");
+    const screen4 = document.getElementById("screen4");
+
+    const btnStart = document.getElementById("toScreen2");
+    const openLetter = document.getElementById("openLetter");
+    const flowersContainer = document.getElementById("flowersContainer");
+
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
+
+    let canGoFinal = false;
+
+    function showScreen(screenToShow) {
+      [screen1, screen2, screen3, screen4].forEach(screen => {
+        screen.classList.remove("active");
+      });
+      screenToShow.classList.add("active");
+    }
+
+    function createFlowers() {
+      const totalFlowers = 26;
+
+      for (let i = 0; i < totalFlowers; i++) {
+        const flower = document.createElement("div");
+        flower.className = "flower";
+        flower.textContent = "🌼";
+
+        const left = Math.random() * 100;
+        const duration = 7 + Math.random() * 8;
+        const delay = Math.random() * 8;
+        const size = 18 + Math.random() * 18;
+
+        flower.style.left = left + "vw";
+        flower.style.animationDuration = duration + "s";
+        flower.style.animationDelay = delay + "s";
+        flower.style.fontSize = size + "px";
+
+        flowersContainer.appendChild(flower);
+      }
+    }
+
+    function startPhotoSequence() {
+      canGoFinal = false;
+      showScreen(screen3);
+
+      img1.classList.remove("show", "shake");
+      img2.classList.remove("show", "shake");
+
+      // Mostrar primera imagen automáticamente
+      setTimeout(() => {
+        img1.classList.add("show", "shake");
+      }, 150);
+
+      // Después de 2 segundos, cambiar a la segunda
+      setTimeout(() => {
+        img1.classList.remove("show", "shake");
+        img2.classList.add("show", "shake");
+      }, 2150);
+
+      // Luego habilitar clic para ir a la carta final
+      setTimeout(() => {
+        canGoFinal = true;
+      }, 3400);
+    }
+
+    btnStart.addEventListener("click", () => {
+      showScreen(screen2);
+    });
+
+    openLetter.addEventListener("click", () => {
+      startPhotoSequence();
+    });
+
+    screen3.addEventListener("click", () => {
+      if (!canGoFinal) return;
+      showScreen(screen4);
+    });
+
+    createFlowers();
+  </script>
+</body>
+</html>
